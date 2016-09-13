@@ -1,0 +1,6 @@
+(define (halve a) (/ a 2))
+(define (double a) (+ a a))
+(define (multi-2 a b)
+  (cond ((= b 0) 0)
+        ((even? b) (multi-2 (double a) (halve b)))
+        (else (+ a (multi-2 a (- b 1))))))
