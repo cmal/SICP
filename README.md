@@ -11,7 +11,7 @@ ppts, notes, refs, and answers of practices.
 
 ## MIT-Scheme Installation 安装
 
-For mac users: 
+For mac users:
 ```
 $ brew install mit-scheme
 ```
@@ -24,6 +24,8 @@ http://www.math.pku.edu.cn/teachers/qiuzy/progtech/
 ## Basic Usage of MIT-Scheme
 
 editing operations just as GNU Emacs
+
+The following operations may be useful:
 ```
 (cd "/some/path")
 (load "/path/to/filename.scm")
