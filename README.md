@@ -9,17 +9,17 @@ And also some Chinese notes and ppts.
 
 ### MIT-Scheme Installation
 
-For mac users:
+For Mac/Homebrew users:
 ```
 $ brew install mit-scheme
 ```
 
 ### Basic Usage of MIT-Scheme
 
-editing operations just as GNU Emacs
+MIT-Scheme provides some basic editing key bindings of GNU Emacs.
 
 The following operations may be useful:
-```
+```scheme
 (cd "/some/path")
 (load "/path/to/filename.scm")
 (disk-save "desktop-session1")
