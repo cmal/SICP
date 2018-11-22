@@ -1,4 +1,5 @@
 # Intro
+
 Answers and notes of the second version of [Structure and Interpretation of Computer Programs](https://mitpress.mit.edu/sicp/) (SICP).
 
 This includes ppts, notes, refs, and answers of practices.
@@ -13,11 +14,6 @@ For mac users:
 ```
 $ brew install mit-scheme
 ```
-### MIT-Scheme Documentation
-https://www.gnu.org/software/mit-scheme/documentation/mit-scheme-ref/
-
-### Chinese Refs By PKU
-http://www.math.pku.edu.cn/teachers/qiuzy/progtech/
 
 ### Basic Usage of MIT-Scheme
 
@@ -30,6 +26,9 @@ The following operations may be useful:
 (disk-save "desktop-session1")
 (disk-restore "desktop-session1")
 ```
+
+### MIT-Scheme Documentation
+https://www.gnu.org/software/mit-scheme/documentation/mit-scheme-ref/
 
 ### Note to MIT-Scheme users
 
@@ -55,3 +54,11 @@ Please refer to http://docs.racket-lang.org/sicp-manual/index.html .
 Emacs has [Racket mode](https://github.com/greghendershott/racket-mode/blob/master/Reference.md).
 
 But I do not know how to use Racket mode to correctly interpret the `#lang` pragma yet. If you have any ideas, not hesitate to create an issue for this.
+
+
+## notes for Chinese readers
+
+### Chinese Refs By PKU
+
+http://www.math.pku.edu.cn/teachers/qiuzy/progtech/
+
