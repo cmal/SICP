@@ -46,11 +46,11 @@
 ;; =>
 (new-if #f 1.0 (new-if (good-enough? 1.5 2) 1.5 (sqrt-iter (improve 1.5 2) 2)))
 ;; =>
-(new-if #f 1.0 (new-if #f 1.5 (sqrt-iter 1.75 2)))
+(new-if #f 1.0 (new-if #f 1.5 (sqrt-iter 1.4166666666666665 2)))
 ;; =>
-(new-if #f 1.0 (new-if #f 1.5 (new-if #f 1.75 (new-if (good-enough? 1.75 2) 1.75 (sqrt-iter (improve 1.75 2) 2)))))
+(new-if #f 1.0 (new-if #f 1.5 (new-if #f 1.4166666666666665 (new-if (good-enough? 1.4166666666666665 2) 1.4166666666666665 (sqrt-iter (improve 1.4166666666666665 2) 2)))))
 ;; =>
-(new-if #f 1.0 (new-if #f 1.5 (new-if #f 1.75 (new-if #f 1.75 (sqrt-iter 1.875 2)))))
+(new-if #f 1.0 (new-if #f 1.5 (new-if #f 1.4166666666666665 (new-if #f 1.4166666666666665 (sqrt-iter 1.4142156862745097 2)))))
 ;; =>
 ;; ...
 
