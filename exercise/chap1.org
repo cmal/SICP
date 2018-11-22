@@ -1,0 +1,555 @@
+* Chapter 1
+
+** Exercise 1.1
+
+#+BEGIN_SRC racket
+#lang sicp
+10
+;; => 10
+
+(+ 5 3 4)
+;; => 12
+
+(- 9 1)
+;; => 8
+
+(/ 6 2)
+;; => 3
+
+(+ (* 2 4) (- 4 6))
+;; => 6
+
+(define a 3)
+;;
+
+(define b (+ a 1))
+;;
+
+(+ a b (* a b))
+;; => 19
+
+(if (and (> b a) (< b (* a b)))
+    b
+    a)
+;; => 4
+
+(cond ((= a 4) 6)
+      ((= b 4) (+ 6 7 a))
+      (else 25))
+;; => 16
+
+(+ 2 (if (> b a) b a))
+;; => 6
+
+(* (cond ((> a b) a)
+         ((< a b) b)
+         (else -1))
+   (+ a 1))
+;; => 16
+#+END_SRC
+
+
+
+** Exercise 1.2
+
+#+BEGIN_SRC racket
+#lang sicp
+(/ (+ 5 4 (- 2 (- 3 (+ 6 (/ 4 5)))))
+   (* 3 (- 6 2) (- 2 7)))
+#+END_SRC
+
+
+** Exercise 1.3
+
+#+BEGIN_SRC racket
+(define (sum-square-of-the-bigger-two a b c)
+  (if (>= a b)
+      (if (>= b c)
+          (sum-of-squares a b)
+          (sum-of-squares a c))
+      (if (>= a c)
+          (sum-of-squares b a)
+          (sum-of-squares b c))))
+
+(sum-square-of-the-bigger-two 1 2 3)
+(sum-square-of-the-bigger-two 1 3 2)
+(sum-square-of-the-bigger-two 2 1 3)
+(sum-square-of-the-bigger-two 2 3 1)
+(sum-square-of-the-bigger-two 3 1 2)
+(sum-square-of-the-bigger-two 3 2 1)
+#+END_SRC
+
+
+** Exercise 1.4
+
+#+BEGIN_SRC racket
+(define (a-plus-abs-b a b)
+  ((if (> b 0) + -) a b))
+
+(a-plus-abs-b 1 2)
+((if (> 2 0) + -) 1 2)
+((if #t + -) 1 2)
+(+ 1 2)
+3
+
+
+(a-plus-abs-b 1 -2)
+((if (> -2 0) + -) 1 -2)
+((if #f + -) 1 -2)
+(- 1 -2)
+3
+#+END_SRC
+
+** Exercise 1.5
+
+#+BEGIN_SRC racket
+#lang sicp
+;; #lang sicp uses applicative order
+
+(define (p) (p))
+
+(define (test x y)
+  (if (= x 0)
+      0
+      y))
+
+(test 0 (p)) ;; the interpreter will be stuck in evaluating (p), which causes an endless loop. Or cause stack overflow.
+
+;; BTW: Clojure is applicative form
+
+;; use the following to detect applicative or normal order
+;; https://stackoverflow.com/questions/29657169/normal-order-vs-applicative-order-procedure-in-scheme
+(define applicative?
+  (lambda ()
+   (let ((test #t))
+    (let ((e (begin (set! test #f) #f)))
+      (if test (display 'normal) (display 'applicative))))))
+
+(applicative?)
+;; => applicative
+
+#+END_SRC
+
+Clean racket buffer and do the following again:
+
+#+BEGIN_SRC racket
+#lang lazy
+;; #lang lazy is normal order
+
+(define (p) (p))
+
+(define (test x y)
+  (if (= x 0)
+      0
+      y))
+
+(test 0 (p))
+;; => 0
+
+;; EXPLANATION: The interpreter will first try to expand test,
+((λ (x y) (if (= x 0) 0 y)) 0 (p))
+;; and apply lambda
+
+((if (= 0 0) 0 (p)))
+;; apply if
+
+;; and reduce (= 0 0)
+((if #t 0 (p)))
+
+;; we are in the process of applying if, so:
+0
+
+;; use this to detect applicative or normal order
+
+(define applicative?
+  (lambda ()
+   (let ((test #t))
+    (let ((e (begin (set! test #f) #f)))
+      (if test (display 'normal) (display 'applicative))))))
+
+(applicative?)
+;; => normal
+#+END_SRC
+
+** Exercise 1.6
+
+#+BEGIN_SRC racket
+#lang sicp
+
+(define (square x) (* x x))
+
+(define (average x y)
+  (/ (+ x y) 2))
+
+(define (improve guess x)
+  (average guess (/ x guess)))
+
+(define (good-enough? guess x)
+  (< (abs (- (square guess) x)) 0.001))
+
+(define (new-if predicate then-clause else-clause)
+  (cond (predicate then-clause)
+	(else else-clause)))
+
+(new-if (= 2 3) 0 5)
+;; => 5
+
+(new-if (= 1 1) 0 5)
+;; => 0
+
+(define (sqrt-iter guess x)
+  (new-if (good-enough? guess x)
+	  guess
+	  (sqrt-iter (improve guess x)
+		     x)))
+
+(define (sqrt x)
+  (sqrt-iter 1.0 x))
+
+(sqrt 2)
+;; will get stuck, finally out of memory, or stack overflow.
+
+;; NOTE: Applicative order will evaluate the params first before applying the procedure.
+;; So `then-clause` and `else-clause` get evaluated before `cond` get applied.
+;; Because the `else-clause` must get evaluated first, but `(sqrt-iter (improve guess x) x)`
+;; go into an endless loop, like this:
+
+(sqrt-iter 1.0 2)
+;; =>
+(new-if (good-enough? 1.0 2) 1.0 (sqrt-iter (improve 1.0 2) 2))
+;; =>
+(new-if #f 1.0 (sqrt-iter 1.5 2))
+;; =>
+(new-if #f 1.0 (new-if (good-enough? 1.5 2) 1.5 (sqrt-iter (improve 1.5 2) 2)))
+;; =>
+(new-if #f 1.0 (new-if #f 1.5 (sqrt-iter 1.4166666666666665 2)))
+;; =>
+(new-if #f 1.0 (new-if #f 1.5 (new-if #f 1.4166666666666665 (new-if (good-enough? 1.4166666666666665 2) 1.4166666666666665 (sqrt-iter (improve 1.4166666666666665 2) 2)))))
+;; =>
+(new-if #f 1.0 (new-if #f 1.5 (new-if #f 1.4166666666666665 (new-if #f 1.4166666666666665 (sqrt-iter 1.4142156862745097 2)))))
+;; =>
+;; ...
+
+;; note the `new-if` here will never apply, because the `sqrt-iter`
+;; procedure expands endlessly, even if the `good-enough?` procedure here
+;; returns #t.
+#+END_SRC
+
+** Exercise 1.7
+
+#+BEGIN_SRC racket
+#lang sicp
+
+(define (square x) (* x x))
+
+(define (average x y)
+  (/ (+ x y) 2))
+
+(define (improve guess x)
+  (average guess (/ x guess)))
+
+;; (define (good-enough? guess x)
+;;   (< (abs (- (square guess) x)) 0.001))
+
+(define (sqrt-iter guess x)
+  (if (good-enough? guess x)
+      guess
+      (sqrt-iter (improve guess x)
+                 x)))
+
+(define (sqrt x)
+  (sqrt-iter 1.0 x))
+
+;; if use old good-enough? definition
+(sqrt 0.0000001)
+;; => 0.03125106561775382
+
+(sqrt 1000000000000000000)
+;; => 1000000000.0
+
+(define (good-enough? guess x)
+  (< (/ (abs (- (square guess) x)) guess) 0.001))
+
+;; use this new definition
+(sqrt 0.0000001)
+;; => 0.0010104595507340792
+(sqrt 1000000000000000000)
+;; => 1000000000.0000024
+
+;; ANSWER to the question:
+
+;; It does work better for small numbers,
+;; but it does not work better for large numbers
+;; because the same fractional change for large numbers
+;; is larger than small numbers.
+
+#+END_SRC
+
+** Exercise 1.8
+
+#+BEGIN_SRC racket
+#lang sicp
+
+(define (square x) (* x x))
+(define (cuber x) (* x (square x)))
+
+(define (cbrt-iter guess x)
+  (if (good-enough? guess x)
+    guess
+    (cbrt-iter (improve guess x) x)))
+
+
+(define (improve guess x)
+  (/ (+ (/ x (square guess))
+        (* 2 guess))
+     3))
+
+(define (good-enough? guess x)
+  (< (abs (- (cuber guess) x)) 0.001))
+
+(define (cbrt x)
+  (cbrt-iter 1.0 x))
+
+(cbrt 27.0)
+;; 3.0000005410641766
+#+END_SRC
+
+** Exercise 1.9
+
+#+BEGIN_SRC racket
+#lang sicp
+
+(define (+ a b)
+  (if (= a 0)
+      b
+      (inc (+ (dec a) b))))
+
+(+ 4 5)
+
+;; =>
+
+(if (= 4 0) 5 (inc (+ (dec 4) 5))) ;; applicative order
+;; if is a special form
+;; evaluate <PREDICATE> (= 4 0)
+(if #f 5 (inc (+ (dec 4) 5)))
+;; reduced to
+(inc (+ (dec 4) 5))
+;; inc is a normal procedure
+;; reduce its parameter
+;; + is a normal procedure
+;; reduce (dec 4)
+(inc (+ 3 5))
+;; apply +
+(inc (if (= 3 0) 5 (inc (+ (dec 3) 5))))
+(inc (if #f 5 (inc (+ (dec 3) 5))))
+(inc (inc (+ (dec 3) 5)))
+(inc (inc (+ 2 5)))
+(inc (inc (if (= 2 0) 5 (inc (+ (dec 2) 5)))))
+(inc (inc (if #f 5 (inc (+ (dec 2) 5)))))
+(inc (inc (inc (+ (dec 2) 5))))
+(inc (inc (inc (+ 1 5))))
+(inc (inc (inc (if (= 1 0) 5 (inc (+ (dec 1) 5))))))
+(inc (inc (inc (if #f 5 (inc (+ (dec 1) 5))))))
+(inc (inc (inc (inc (+ (dec 1) 5)))))
+(inc (inc (inc (inc (+ 0 5)))))
+(inc (inc (inc (inc (if (= 0 0) 5 (inc (+ (dec 0) 5)))))))
+(inc (inc (inc (inc (if #t 5 (inc (+ (dec 0) 5)))))))
+(inc (inc (inc (inc 5))))
+(inc (inc (inc 6)))
+(inc (inc 7))
+(inc 8)
+9
+#+END_SRC
+
+The tail recursion version:
+
+#+BEGIN_SRC racket
+#lang sicp
+
+(define (+ a b)
+  (if (= a 0)
+      b
+      (+ (dec a) (inc b))))
+
+(+ 4 5)
+(if (= 4 0) 5 (+ (dec 4) (inc 5)))
+(if #f 5 (+ (dec 4) (inc 5)))
+(+ (dec 4) (inc 5))
+(+ 3 6)
+(if (= 3 0) 6 (+ (dec 3) (inc 6)))
+(if #f 6 (+ (dec 3) (inc 6)))
+(+ (dec 3) (inc 6))
+(+ 2 7)
+(if (= 2 0) 7 (+ (dec 2) (inc 7)))
+(if #f 7 (+ (dec 2) (inc 7)))
+(+ (dec 2) (inc 7))
+(+ 1 8)
+(if (= 1 0) 8 (+ (dec 1) (inc 8)))
+(if #f 8 (+ (dec 1) (inc 8)))
+(+ (dec 1) (inc 8))
+(+ 0 9)
+(if (= 0 0) 9 (+ (dec 0) (inc 9)))
+(if #t 9 (+ (dec 0) (inc 9)))
+9
+#+END_SRC
+
+** Exercise 1.10
+
+#+BEGIN_SRC racket
+#lang sicp
+
+(define (A x y)
+  (cond ((= y 0) 0)
+        ((= x 0) (* 2 y))
+        ((= y 1) 2)
+        (else (A (- x 1)
+                 (A x (- y 1))))))
+;; 1.
+(A 1 10)
+
+(cond ((= 10 0) 0)
+      ((= 1 0) (* 2 10))
+      ((= 10 1) 2)
+      (else (A (- 1 1)
+               (A 1 (- 10 1)))))
+(cond (#f 0)
+      ((= 1 0) (* 2 10))
+      ((= 10 1) 2)
+      (else (A (- 1 1)
+               (A 1 (- 10 1)))))
+
+(cond (#f 0)
+      (#f (* 2 10))
+      ((= 10 1) 2)
+      (else (A (- 1 1)
+               (A 1 (- 10 1)))))
+
+(cond (#f 0)
+      (#f (* 2 10))
+      (#f 2)
+      (else (A (- 1 1)
+               (A 1 (- 10 1)))))
+
+(A (- 1 1)
+   (A 1 (- 10 1)))
+
+(A 0
+   (A 1 9))
+;; ignore the cond process
+(A 0 (A 0 (A 1 8)))
+(A 0 (A 0 (A 0 (A 1 7))))
+(A 0 (A 0 (A 0 (A 0 (A 1 6)))))
+(A 0 (A 0 (A 0 (A 0 (A 0 (A 1 5))))))
+(A 0 (A 0 (A 0 (A 0 (A 0 (A 0 (A 1 4)))))))
+(A 0 (A 0 (A 0 (A 0 (A 0 (A 0 (A 0 (A 1 3))))))))
+(A 0 (A 0 (A 0 (A 0 (A 0 (A 0 (A 0 (A 0 (A 1 2))))))))) 
+(A 0 (A 0 (A 0 (A 0 (A 0 (A 0 (A 0 (A 0 (A 0 (A 1 1))))))))))
+(A 0 (A 0 (A 0 (A 0 (A 0 (A 0 (A 0 (A 0 (A 0 2)))))))))
+(A 0 (A 0 (A 0 (A 0 (A 0 (A 0 (A 0 (A 0 4))))))))
+(A 0 (A 0 (A 0 (A 0 (A 0 (A 0 (A 0 8))))))) 
+(A 0 (A 0 (A 0 (A 0 (A 0 (A 0 16)))))) 
+(A 0 (A 0 (A 0 (A 0 (A 0 32)))))
+(A 0 (A 0 (A 0 (A 0 64))))
+(A 0 (A 0 (A 0 128))) 
+(A 0 (A 0 256))
+(A 0 512)
+1024
+
+;; (A 0 n) is 2n
+;; (A 1 n) is 2^n
+(A 2 4)
+(A (- 2 1) (A 2 (- 4 1)))
+(A 1 (A 2 3))
+(A 1 (A 1 (A 2 2)))
+(A 1 (A 1 (A 1 (A 2 1))))
+(A 1 (A 1 (A 1 2)))
+(A 1 (A 1 4))
+(A 1 16)
+65535
+;; 2^16
+;; 2 ^ (2 ^ (2 ^ 2))
+
+(A 2 3)
+(A 1 (A 2 2))
+(A 1 (A 1 (A 2 1)))
+(A 1 (A 1 2))
+;; 2 ^ (2 ^ 2)
+
+;; so (A 2 n) is 2 ^ (2 ^ (2 ^ ....)) recursively,
+;; with total n number of 2, where n >= 1.
+;; The special case n = 1 is just the second condition of `cond`.
+
+(A 3 3)
+(A 2 (A 3 2))
+(A 2 (A 2 (A 3 1)))
+(A 2 (A 2 2))
+(A 2 (A 1 (A 2 1)))
+(A 2 (A 1 2))
+(A 2 4)
+65535
+
+#+END_SRC
+
+** Exercise 1.11
+
+The recursive version:
+
+#+BEGIN_SRC racket
+(define (f n)
+  (cond ((< n 3) n)
+        (else (+ (f (- n 1))
+                 (* 2 (f (- n 2)))
+                 (* 3 (f (- n 3)))))))
+#+END_SRC
+
+The iterative version:
+
+#+BEGIN_SRC racket
+(define (f n)
+  (define (f-iter a b c count)
+    (cond ((< count 3) count)
+          ((= count 3) (+ c (* 2 b) (* 3 a)))
+          (else (f-iter b c (+ c (* 2 b) (* 3 a)) (- count 1)))))
+
+  (f-iter 0 1 2 n))
+#+END_SRC
+
+** Exercise 1.12
+
+Pascal's triangle (recursive):
+
+#+BEGIN_SRC racket
+;; 这个算法不检查超出范围的值
+(define (pascal a b)
+  (cond ((= 0 a) 1)
+        ((= a b) 1)
+        (else (+ (pascal (- a 1) (- b 1))  ;; 左上角
+                 (pascal a (- b 1))))))    ;; 右上角
+#+END_SRC
+
+** Exercise 1.13
+
+Induce:
+
+1. phi = (1 + sqrt(5)) / 2
+   big-phi = (1 - sqrt(5)) / 2
+   note: phi^2 = 1 + phi
+         big-phi^2 = 1 + big-phi
+
+2. abs(big-phi^n) is always < 1 and decrease monotonously,
+   and abs(big-phi^n)/sqrt(5) always < 0.5, where n = 0,1,...
+
+3. Prove: Fib(n) = (phi^n - big-phi^n)/sqrt(5) (statement 1)
+   (phi^0 - big-phi^0)/sqrt(5) = 0 = Fib(0)
+   (phi^1 - big-phi^1)/sqrt(5) = 1 = Fib(1)
+   (phi^2 - big-phi^2)/sqrt(5) = 1 = Fib(2)
+
+   if statement 1 is true for all n < m (m >= 2), then
+
+   (phi^m - big-phi^m)/sqrt(5) = (phi^(m - 2) * (1 + phi) -
+     big-phi^(m - 2) * (1 + big-phi)) / sqrt(5)
+   = (phi^(m - 2) - big-phi^(m - 2)) / sqrt(5) + (phi^(m - 1) -
+     big-phi^(m - 1)) / sqrt(5)
+   = Fib(m - 2) + Fib(m - 1)
+
+according to 2 and 3, the closest integer of phi^n is always Fib(n).
