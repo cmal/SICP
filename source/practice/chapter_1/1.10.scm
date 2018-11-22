@@ -1,13 +1,43 @@
+#lang sicp
+
 (define (A x y)
   (cond ((= y 0) 0)
         ((= x 0) (* 2 y))
         ((= y 1) 2)
         (else (A (- x 1)
                  (A x (- y 1))))))
-
+;; 1.
 (A 1 10)
-(A 0 (A 1 (- 10 1)))
-(A 0 (A 1 9))
+
+(cond ((= 10 0) 0)
+      ((= 1 0) (* 2 10))
+      ((= 10 1) 2)
+      (else (A (- 1 1)
+               (A 1 (- 10 1)))))
+(cond (#f 0)
+      ((= 1 0) (* 2 10))
+      ((= 10 1) 2)
+      (else (A (- 1 1)
+               (A 1 (- 10 1)))))
+
+(cond (#f 0)
+      (#f (* 2 10))
+      ((= 10 1) 2)
+      (else (A (- 1 1)
+               (A 1 (- 10 1)))))
+
+(cond (#f 0)
+      (#f (* 2 10))
+      (#f 2)
+      (else (A (- 1 1)
+               (A 1 (- 10 1)))))
+
+(A (- 1 1)
+   (A 1 (- 10 1)))
+
+(A 0
+   (A 1 9))
+;; ignore the cond process
 (A 0 (A 0 (A 1 8)))
 (A 0 (A 0 (A 0 (A 1 7))))
 (A 0 (A 0 (A 0 (A 0 (A 1 6)))))
@@ -27,7 +57,8 @@
 (A 0 512)
 1024
 
-;; so, we can know from now that (A 1 n) is 2^n
+;; (A 0 n) is 2n
+;; (A 1 n) is 2^n
 (A 2 4)
 (A (- 2 1) (A 2 (- 4 1)))
 (A 1 (A 2 3))
@@ -36,7 +67,20 @@
 (A 1 (A 1 (A 1 2)))
 (A 1 (A 1 4))
 (A 1 16)
-65535;;2^16
+65535
+;; 2^16
+;; 2 ^ (2 ^ (2 ^ 2))
+
+(A 2 3)
+(A 1 (A 2 2))
+(A 1 (A 1 (A 2 1)))
+(A 1 (A 1 2))
+;; 2 ^ (2 ^ 2)
+
+;; so (A 2 n) is 2 ^ (2 ^ (2 ^ ....)) recursively,
+;; with total n number of 2, where n >= 1.
+;; The special case n = 1 is just the second condition of `cond`.
+
 
 (A 3 3)
 (A 2 (A 3 2))
