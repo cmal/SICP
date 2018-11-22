@@ -43,7 +43,7 @@ download the newest version of Racket and install.
 
 For SICP, using Racket gives you an option for testing `normal order` evaluation using `#lang lazy`, which is not provided in the `MIT-Scheme` interpreter.
 
-### use Racket to interpret sicp version Scheme
+### Use Racket to interpret sicp version Scheme
 
 Please refer to http://docs.racket-lang.org/sicp-manual/index.html .
 
@@ -55,7 +55,7 @@ Emacs has [Racket mode](https://github.com/greghendershott/racket-mode/blob/mast
 But I do not know how to use Racket mode to correctly interpret the `#lang` pragma yet. If you have any ideas, not hesitate to create an issue for this.
 
 
-## notes for Chinese readers
+## Notes for Chinese readers
 
 ### Chinese Refs By PKU
 
