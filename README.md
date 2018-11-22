@@ -1,8 +1,9 @@
 # Intro
 
-Answers and notes of the second version of [Structure and Interpretation of Computer Programs](https://mitpress.mit.edu/sicp/) (SICP).
+Ppts, notes, references and answers to exercises,
+of the second version of [Structure and Interpretation of Computer Programs](https://mitpress.mit.edu/sicp/) (SICP).
 
-This includes ppts, notes, refs, and answers of practices.
+Ppts, notes, refs, and answers of exercises.
 
 And also some Chinese notes and ppts.
 
