@@ -3,8 +3,6 @@
 Ppts, notes, references and answers to exercises,
 of the second version of [Structure and Interpretation of Computer Programs](https://mitpress.mit.edu/sicp/) (SICP).
 
-Ppts, notes, refs, and answers of exercises.
-
 And also some Chinese notes and ppts.
 
 ## MIT-Scheme
